@@ -1,0 +1,280 @@
+/* ============================================================
+   Anti-Cheat Demo — Styles
+   Clean two-column layout: game on the left, panels on the right
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0f1117;
+  --surface:   #1a1d27;
+  --border:    #2e3147;
+  --text:      #e2e8f0;
+  --muted:     #8892a4;
+  --accent:    #4f8ef7;
+  --green:     #34d399;
+  --yellow:    #fbbf24;
+  --orange:    #f97316;
+  --red:       #ef4444;
+  --player:    #4f8ef7;
+  --coin:      #fbbf24;
+  --canvas-bg: #0d1020;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: .5px; }
+header .subtitle { font-size: .8rem; color: var(--muted); }
+.status-badge {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  background: #1a2f1a;
+  color: var(--green);
+  border: 1px solid var(--green);
+  transition: background .3s, color .3s;
+}
+.status-badge.flagged { background: #2f1a1a; color: var(--red); border-color: var(--red); }
+
+/* ── Main layout ── */
+main {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  padding: 16px;
+  flex: 1;
+  align-items: start;
+}
+
+/* ── Game column ── */
+.game-column { display: flex; flex-direction: column; gap: 12px; }
+
+.game-hud {
+  display: flex;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+.hud-item { display: flex; flex-direction: column; gap: 2px; }
+.hud-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.hud-value { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+canvas {
+  display: block;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--canvas-bg);
+}
+canvas.flagged { border-color: var(--red); box-shadow: 0 0 16px rgba(239,68,68,.4); }
+
+.game-controls {
+  font-size: .75rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ── Right column ── */
+.right-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* ── Panel ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-header .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Cheat console buttons ── */
+.cheat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px;
+}
+.cheat-btn {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #1f2235;
+  color: var(--text);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s, border-color .15s;
+}
+.cheat-btn:hover { background: #272b40; border-color: var(--accent); }
+.cheat-btn .btn-label { display: block; }
+.cheat-btn .btn-desc { display: block; font-size: .68rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.cheat-btn.speed   { border-left: 3px solid var(--orange); }
+.cheat-btn.score   { border-left: 3px solid var(--yellow); }
+.cheat-btn.teleport{ border-left: 3px solid var(--accent); }
+.cheat-btn.tamper  { border-left: 3px solid var(--red); }
+.cheat-btn.bot     { border-left: 3px solid #a855f7; }
+.cheat-btn.reset   { border-left: 3px solid var(--green); grid-column: span 2; }
+
+/* ── Log panel ── */
+.log-container {
+  height: 260px;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.log-empty { color: var(--muted); font-size: .78rem; text-align: center; padding: 40px 0; }
+
+.log-entry {
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: .75rem;
+  border-left: 3px solid transparent;
+  background: #12151f;
+  animation: slideIn .2s ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+.log-entry.low    { border-color: var(--yellow); }
+.log-entry.medium { border-color: var(--orange); }
+.log-entry.high   { border-color: var(--red); }
+
+.log-entry .log-top { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.log-entry .log-type { font-weight: 700; }
+.log-entry .log-sev {
+  padding: 1px 6px; border-radius: 999px; font-size: .65rem; font-weight: 700; text-transform: uppercase;
+}
+.log-entry.low    .log-sev { background: rgba(251,191,36,.15);  color: var(--yellow); }
+.log-entry.medium .log-sev { background: rgba(249,115,22,.15);  color: var(--orange); }
+.log-entry.high   .log-sev { background: rgba(239,68,68,.15);   color: var(--red); }
+.log-entry .log-time { margin-left: auto; color: var(--muted); font-size: .65rem; }
+.log-entry .log-msg  { color: var(--text); line-height: 1.4; }
+.log-entry .log-evidence { color: var(--muted); font-size: .68rem; margin-top: 3px; font-family: monospace; }
+
+.log-actions {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.log-count { font-size: .72rem; color: var(--muted); margin-left: auto; }
+.btn-small {
+  padding: 4px 10px;
+  font-size: .72rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.btn-small:hover { background: var(--border); }
+
+/* ── Test suite ── */
+.test-controls { padding: 10px 12px; display: flex; gap: 8px; align-items: center; }
+.btn-run-tests {
+  padding: 7px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-run-tests:hover { opacity: .85; }
+.btn-run-tests:disabled { opacity: .5; cursor: not-allowed; }
+.test-summary { font-size: .75rem; color: var(--muted); }
+
+.test-results {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.test-item {
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: .74rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #12151f;
+}
+.test-item .icon { flex-shrink: 0; font-size: .85rem; margin-top: 1px; }
+.test-item.pass { border-left: 3px solid var(--green); }
+.test-item.fail { border-left: 3px solid var(--red); }
+.test-item.running { border-left: 3px solid var(--accent); opacity: .7; }
+.test-item .test-name { font-weight: 600; }
+.test-item .test-detail { color: var(--muted); font-size: .68rem; margin-top: 2px; }
+
+/* ── Keyboard hint keys ── */
+kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  margin: 0 1px;
+  font-family: ui-monospace, monospace;
+  font-size: .72rem;
+  color: var(--text);
+  background: #1f2235;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+
+/* ── Active (toggled-on) cheat button — used by the speed hack ── */
+.cheat-btn.active {
+  background: #3a1f1f;
+  border-color: var(--red);
+  box-shadow: inset 0 0 0 1px var(--red);
+}
+.cheat-btn.active .btn-label::after {
+  content: ' ● ВКЛ';
+  color: var(--red);
+  font-size: .7rem;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Заглавие на страницата (видим текст -> български) -->
+  <title>Демонстрация на античийт система</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <h1>Демонстрация на античийт система</h1>
+    <span class="subtitle">Дипломен проект — откриване на измами от страна на клиента</span>
+    <div class="status-badge" id="statusBadge">● ЧИСТО</div>
+  </header>
+
+  <main>
+
+    <!-- ── Лява колона: играта ──────────────────────────────────── -->
+    <div class="game-column">
+
+      <!-- HUD (табло с информация) -->
+      <div class="game-hud">
+        <div class="hud-item">
+          <span class="hud-label">Точки</span>
+          <span class="hud-value" id="hudScore">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Монети</span>
+          <span class="hud-value" id="hudCoins">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Време</span>
+          <span class="hud-value" id="hudTime">0:00</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Нарушения</span>
+          <span class="hud-value" id="hudViolations" style="color:var(--green)">0</span>
+        </div>
+      </div>
+
+      <!-- Игралното поле -->
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Подсказка за управлението -->
+      <div class="game-controls">
+        Движение: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> или стрелки ·
+        диагонали (напр. <kbd>W</kbd>+<kbd>D</kbd>) · Пауза: <kbd>P</kbd> / <kbd>Esc</kbd> ·
+        Цел: събери жълтите монети (по 10 точки)
+      </div>
+
+    </div><!-- /game-column -->
+
+    <!-- ── Дясна колона: панели ─────────────────────────────────── -->
+    <div class="right-column">
+
+      <!-- ── Конзола за измами ──────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>🎮 Конзола за измами</span>
+          <span style="color:var(--muted);font-size:.72rem;font-weight:400;margin-left:4px;">
+            — натисни бутон, за да инжектираш измама на живо
+          </span>
+        </div>
+        <div class="cheat-grid">
+          <button class="cheat-btn speed" id="btnSpeed">
+            <span class="btn-label">⚡ Спийд хак (вкл./изкл.)</span>
+            <span class="btn-desc">Умножава скоростта ×3 → Детекция 1 (скорост)</span>
+          </button>
+          <button class="cheat-btn score" id="btnScore">
+            <span class="btn-label">💰 Инжектиране на точки (+1000)</span>
+            <span class="btn-desc">Записва точки без монета → Детекция 2 (точки)</span>
+          </button>
+          <button class="cheat-btn teleport" id="btnTeleport">
+            <span class="btn-label">🌀 Телепорт на играча</span>
+            <span class="btn-desc">Скок на позицията през полето → Детекция 3 (телепорт)</span>
+          </button>
+          <button class="cheat-btn tamper" id="btnTamper">
+            <span class="btn-label">🔓 Подмяна на състоянието</span>
+            <span class="btn-desc">Подменя брояча на монети → Детекция 4 (контролна сума)</span>
+          </button>
+          <button class="cheat-btn bot" id="btnBot">
+            <span class="btn-label">🤖 Симулирай бот</span>
+            <span class="btn-desc">Събира монети с нечовешка скорост → Детекция 5 (статистика)</span>
+          </button>
+          <button class="cheat-btn reset" id="btnReset">
+            <span class="btn-label">↺ Нулирай играта и дневника</span>
+            <span class="btn-desc">Връща състоянието и изчиства всички нарушения</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Дневник на античийта ───────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="dot"></span>
+          Дневник на античийта
+        </div>
+        <div class="log-container" id="logContainer">
+          <div class="log-empty" id="logEmpty">
+            Все още няма засечени нарушения. Стартирай играта и натисни бутон от конзолата за измами.
+          </div>
+        </div>
+        <div class="log-actions">
+          <button class="btn-small" id="btnClearLog">Изчисти дневника</button>
+          <span class="log-count" id="logCount">0 събития</span>
+        </div>
+      </div>
+
+      <!-- ── Автоматични тестове ────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-header">🧪 Автоматични тестове</div>
+        <div class="test-controls">
+          <button class="btn-run-tests" id="btnRunTests">Стартирай тестовете</button>
+          <span class="test-summary" id="testSummary">Натисни, за да стартираш тестовете</span>
+        </div>
+        <div class="test-results" id="testResults"></div>
+      </div>
+
+    </div><!-- /right-column -->
+  </main>
+
+  <!-- ── Скриптове (модулите се зареждат преди свързващия код) ───── -->
+  <script src="game.js"></script>
+  <script src="anticheat.js"></script>
+  <script src="cheats.js"></script>
+  <script src="tests.js"></script>
+
+  <script>
+  /* ==========================================================================
+   * Bootstrap / UI controller.
+   * This inline script is the ONLY glue between the DOM and the modules. It
+   * keeps each module file pure (no DOM access) so they can be unit-tested.
+   * (Code is English per the assignment; the visible UI strings live in the
+   * markup above and are Bulgarian.)
+   * ========================================================================*/
+  (function () {
+    var canvas       = document.getElementById('gameCanvas');
+    var hudScore     = document.getElementById('hudScore');
+    var hudCoins     = document.getElementById('hudCoins');
+    var hudTime      = document.getElementById('hudTime');
+    var hudViolations= document.getElementById('hudViolations');
+    var statusBadge  = document.getElementById('statusBadge');
+    var logContainer = document.getElementById('logContainer');
+    var logEmpty     = document.getElementById('logEmpty');
+    var logCount     = document.getElementById('logCount');
+
+    var violationCount = 0;
+
+    /* ---- Input: forward keyboard to the game (WASD + arrows + P/Esc) ------ */
+    var MOVE_CODES = {
+      KeyW: 1, KeyA: 1, KeyS: 1, KeyD: 1,
+      ArrowUp: 1, ArrowDown: 1, ArrowLeft: 1, ArrowRight: 1,
+      KeyP: 1, Escape: 1, Space: 1
+    };
+    window.addEventListener('keydown', function (e) {
+      Game.enableAudio();               // first gesture unlocks the pickup sound
+      if (MOVE_CODES[e.code]) e.preventDefault(); // stop the page from scrolling
+      Game.handleKeyCode(e.code, true);
+    });
+    window.addEventListener('keyup', function (e) {
+      Game.handleKeyCode(e.code, false);
+    });
+
+    /* ---- HUD refresh, called once per rendered frame --------------------- */
+    function onHud(state) {
+      hudScore.textContent = state.score;
+      hudCoins.textContent = state.coinsCollected;
+      var secs = Math.floor(state.timeMs / 1000);
+      hudTime.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+      hudViolations.textContent = violationCount;
+      hudViolations.style.color = violationCount > 0 ? 'var(--red)' : 'var(--green)';
+    }
+
+    /* ---- Anti-cheat -> log panel ---------------------------------------- */
+    AntiCheat.onEvent(function (ev) {
+      violationCount++;
+      appendLogEntry(ev);
+      statusBadge.textContent = '⚠ ФЛАГНАТО';
+      statusBadge.className = 'status-badge flagged';
+      canvas.classList.add('flagged');
+    });
+
+    function appendLogEntry(ev) {
+      logEmpty.style.display = 'none';
+      var entry = document.createElement('div');
+      entry.className = 'log-entry ' + ev.severity;
+
+      var time = new Date(ev.timestamp).toLocaleTimeString([], { hour12: false });
+      // Evidence is part of the (English) event data -> rendered verbatim.
+      var evidence = JSON.stringify(ev.evidence);
+
+      entry.innerHTML =
+        '<div class="log-top">' +
+          '<span class="log-type">' + ev.type + '</span>' +
+          '<span class="log-sev">' + ev.severity + '</span>' +
+          '<span class="log-time">' + time + '</span>' +
+        '</div>' +
+        '<div class="log-msg">' + ev.message + '</div>' +
+        '<div class="log-evidence">evidence: ' + evidence + '</div>';
+
+      logContainer.prepend(entry); // newest on top
+      logCount.textContent = document.querySelectorAll('.log-entry').length + ' събития';
+    }
+
+    function clearLogDom() {
+      var nodes = logContainer.querySelectorAll('.log-entry');
+      for (var i = 0; i < nodes.length; i++) nodes[i].remove();
+      logEmpty.style.display = '';
+      logCount.textContent = '0 събития';
+    }
+
+    function setClean() {
+      violationCount = 0;
+      statusBadge.textContent = '● ЧИСТО';
+      statusBadge.className = 'status-badge';
+      canvas.classList.remove('flagged');
+    }
+
+    /* ---- Cheat console buttons ------------------------------------------ */
+    var btnSpeed = document.getElementById('btnSpeed');
+    btnSpeed.addEventListener('click', function () {
+      var on = Cheats.speedHack();      // toggle
+      btnSpeed.classList.toggle('active', on);
+    });
+    document.getElementById('btnScore').addEventListener('click', function () {
+      Cheats.injectScore(1000);
+    });
+    document.getElementById('btnTeleport').addEventListener('click', function () {
+      Cheats.teleport();
+    });
+    document.getElementById('btnTamper').addEventListener('click', function () {
+      Cheats.tamperState();
+    });
+    document.getElementById('btnBot').addEventListener('click', function () {
+      Cheats.simulateBot();
+    });
+    document.getElementById('btnReset').addEventListener('click', function () {
+      Cheats.clearAll();
+      Game.reset();
+      btnSpeed.classList.remove('active');
+      clearLogDom();
+      setClean();
+    });
+    document.getElementById('btnClearLog').addEventListener('click', function () {
+      AntiCheat.clear();
+      clearLogDom();
+    });
+
+    /* ---- Automated test runner ------------------------------------------ */
+    document.getElementById('btnRunTests').addEventListener('click', function () {
+      var btn = this;
+      var summaryEl = document.getElementById('testSummary');
+      var resultsEl = document.getElementById('testResults');
+      btn.disabled = true; btn.textContent = 'Изпълнява се…';
+      resultsEl.innerHTML = '';
+
+      // Yield once so the button state paints before the synchronous tests run.
+      setTimeout(function () {
+        var summary = Tests.run();
+        summary.results.forEach(function (r) {
+          var item = document.createElement('div');
+          item.className = 'test-item ' + (r.pass ? 'pass' : 'fail');
+          item.innerHTML =
+            '<span class="icon">' + (r.pass ? '✅' : '❌') + '</span>' +
+            '<div><div class="test-name">' + r.name + '</div>' +
+            (r.detail ? '<div class="test-detail">' + r.detail + '</div>' : '') + '</div>';
+          resultsEl.appendChild(item);
+        });
+        summaryEl.textContent = summary.passed + ' успешни · ' + summary.failed +
+          ' неуспешни · ' + summary.total + ' общо';
+        summaryEl.style.color = summary.failed === 0 ? 'var(--green)' : 'var(--red)';
+
+        // The suite resets the world at the end; refresh the UI to match.
+        btnSpeed.classList.remove('active');
+        clearLogDom();
+        setClean();
+        btn.disabled = false; btn.textContent = 'Стартирай тестовете';
+      }, 30);
+    });
+
+    /* ---- Go ------------------------------------------------------------- */
+    Game.start(canvas, { onHud: onHud });
+  })();
+  </script>
+
+</body>
+</html>
